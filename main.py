@@ -1,9 +1,9 @@
 from geojson import Feature, Polygon, load
-import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import numpy as np
+import random
 
 f = open('input/syd-teams.geojson')
 
@@ -20,29 +20,42 @@ def make_aggregate_lat_lon(suburb):
 
   return agg_lon, agg_lat
 
-def make_numpy_array_from_vertices(suburb):
-  individual_coords = suburb['geometry']['coordinates'][0]
-
-  return np.array(individual_coords)
+# In the format: [edgecolor, facecolor]
+COLORS = [
+  # Blue
+  ['#2A80B9', (41/255, 128/255, 185/255, 0.4)],
+  # Red
+  [(231/255, 76/255, 60/255, 1.0), (231/255, 76/255, 60/255,0.4)],
+  # Slytherin
+  [(66 / 255, 133 / 255, 30 / 255, 1.0), (66 / 255, 133 / 255, 30 / 255, 0.4)],
+  # Hufflepuff
+  [(1, 220/255, 0, 1.0), (1, 220/255, 0, 0.4)],
+  # And purple
+  [(177/255, 13/255, 201/255, 1.0), (177/255, 13/255, 201/255, 0.4)]
+]
 
 def make_suburb_map(suburb):
-  ax = plt.axes(projection=ccrs.PlateCarree())
-
+  ax = plt.axes()
   agg_lon, agg_lat = make_aggregate_lat_lon(suburb)
-  plt.plot(agg_lon, agg_lat,
-          color='#2A80B9',
+  edgecolor, facecolor = random.choice(COLORS)
+  
+  plt.fill(agg_lon, agg_lat,
+          edgecolor=edgecolor,
           linewidth=2,
-          transform=ccrs.Geodetic()
+          facecolor=facecolor
+          # transform=ccrs.Geodetic()
           )
-
+  ax.axis('off')
+  
   """
-  I started doing this but it's not working
-  and I don't understand why
+  # I started doing this but it's not working
+  # and I don't understand why
   print(np.column_stack([agg_lat, agg_lon]))
   poly = Polygon(np.column_stack([agg_lat, agg_lon]),
     color="#2A80B9",
+    fill=True
     # fill=True,
-    transform=ccrs.Geodetic()
+    # transform=ccrs.Geodetic()
   )
 
   ax.add_patch(poly)
